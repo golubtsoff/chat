@@ -14,7 +14,7 @@ public class ChatService {
     public void sendMessage(String data) {
         for (ChatWebSocket user : webSockets) {
             try {
-                user.sendString(data);
+                user.sendMessage(data);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -23,10 +23,21 @@ public class ChatService {
 
     public void add(ChatWebSocket webSocket) {
         webSockets.add(webSocket);
+        updateCountUsers();
     }
 
     public void remove(ChatWebSocket webSocket) {
         webSockets.remove(webSocket);
+        updateCountUsers();
     }
 
+    private void updateCountUsers(){
+        for (ChatWebSocket user : webSockets) {
+            try {
+                user.sendCountUsers(webSockets.size());
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
 }

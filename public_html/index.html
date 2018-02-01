@@ -8,8 +8,15 @@
         function init() {
             ws = new WebSocket("ws://localhost:8080/chat");
             ws.onmessage = function (event) {
-                var $textarea = document.getElementById("messages");
-                $textarea.value = $textarea.value + event.data + "\n";
+                var $receive_data = JSON.parse(event.data);
+
+                if ($receive_data[0] == "message") {
+                    var $textarea = document.getElementById("messages");
+                    $textarea.value = $textarea.value + $receive_data[1] + "\n";
+                } else if ($receive_data[0] == "count_users") {
+                    var $count = document.getElementById("users");
+                    $count.innerHTML = "Online users: " + $receive_data[1];
+                }
             }
         }
 
@@ -30,6 +37,12 @@
         </p>
 
         <div style="clear: both"></div>
+    </div>
+
+    <div id="users">
+        <p>
+            Online users:
+        </p>
     </div>
 
     <div id="chatbox">

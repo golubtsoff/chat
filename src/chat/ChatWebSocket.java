@@ -1,5 +1,6 @@
 package chat;
 
+import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
@@ -22,8 +23,8 @@ public class ChatWebSocket {
 
     @OnWebSocketConnect
     public void onOpen(Session session) {
-        chatService.add(this);
         this.session = session;
+        chatService.add(this);
     }
 
     @OnWebSocketMessage
@@ -36,10 +37,21 @@ public class ChatWebSocket {
         chatService.remove(this);
     }
 
-    public void sendString(String data) {
-        LocalDateTime ldt = LocalDateTime.now();
+    public void sendMessage(String data) {
+        String[] result = {"message","[" + LocalDateTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)) + "]" + data};
+        sendString(result);
+    }
+
+    public void sendCountUsers(int count){
+        String[] result = {"count_users", Integer.toString(count)};
+        sendString(result);
+    }
+
+    private void sendString(String[] source){
         try {
-            session.getRemote().sendString("[" + ldt.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)) + "]" + data);
+            Gson gson = new Gson();
+            String out =  gson.toJson(source);
+            session.getRemote().sendString(out);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
